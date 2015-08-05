@@ -7,14 +7,14 @@ import (
 	"net"
 )
 
-func ReadNetworks(data []byte) (*[]network, error) {
-	var networks []network
+func ReadNetworks(data []byte) ([]*network, error) {
+	var networks []*network
 
 	if err := json.Unmarshal(data, &networks); err != nil {
-		return &networks, err
+		return networks, err
 	}
 
-	return &networks, nil
+	return networks, nil
 }
 
 type network struct {
@@ -27,6 +27,14 @@ type network struct {
 	Vlan          vlan           `json:"vlan"`
 	DHCP          []rng          `json:"dhcp"`
 	ForeignRanges []foreignRange `json:"foreign_ranges"`
+	Utilization   utilization    `json:"utilization"`
+}
+
+type utilization struct {
+	Free        int `json:"name"`
+	Used        int `json:"name"`
+	FreePercent int `json:"free_percent"`
+	UsedPercent int `json:"used_percent"`
 }
 
 func (n network) Contains(ip net.IP) bool {

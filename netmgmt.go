@@ -35,7 +35,7 @@ func init() {
 }
 
 var locker Locker
-var networks *[]network
+var networks []*network
 
 func main() {
 	env.Parse("NETMGMT", false)
@@ -46,7 +46,6 @@ func main() {
 	}
 
 	locker.Init(duration)
-	locker.Add("10.100.18.28", "temp", "menetda`")
 
 	f, err := os.Open(config.File)
 	defer f.Close()

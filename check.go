@@ -15,6 +15,7 @@ type ResultSet struct {
 	Desc     string `json:"desc"`
 	Pingable bool   `json:"pingable"`
 	Lock     Lock   `json:"lock"`
+	Free     bool   `json:"free"`
 }
 
 func (rs ResultSet) Used() bool {
@@ -23,12 +24,14 @@ func (rs ResultSet) Used() bool {
 
 type check struct {
 	sync.RWMutex
-	results map[string]*ResultSet
+	results     map[string]*ResultSet
+	utilization utilization
 }
 
 func NewCheck(ips []net.IP) *check {
 	var c check
 	c.results = make(map[string]*ResultSet)
+	c.utilization = utilization{}
 	for _, ip := range ips {
 		res := ResultSet{
 			IP:       ip,
@@ -36,6 +39,7 @@ func NewCheck(ips []net.IP) *check {
 			Desc:     "",
 			Pingable: false,
 			Lock:     Lock{},
+			Free:     false,
 		}
 		c.results[ip.String()] = &res
 
@@ -89,8 +93,31 @@ func (c *check) isLocked() {
 	}
 }
 
+func (c *check) getFree() {
+	defer c.Unlock()
+	c.Lock()
+	total := len(c.results)
+	free := 0
+	used := 0
+	for _, r := range c.results {
+		if r.Used() {
+			used += 1
+			r.Free = false
+		} else {
+			free += 1
+			r.Free = true
+		}
+	}
+
+	c.utilization.Used = used
+	c.utilization.Free = free
+	c.utilization.UsedPercent = used * 100 / total
+	c.utilization.FreePercent = free * 100 / total
+}
+
 func (c *check) Run() {
 	c.isResolvable()
 	c.isPingable()
 	c.isLocked()
+	c.getFree()
 }

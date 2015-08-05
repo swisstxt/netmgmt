@@ -27,7 +27,7 @@ func GetNodeInfo(res http.ResponseWriter, req *http.Request) {
 	}
 
 	for _, s := range sets {
-		for _, n := range *networks {
+		for _, n := range networks {
 			if n.Contains(s.Addr) {
 				r.JSON(res, http.StatusOK, n)
 				return
@@ -53,7 +53,7 @@ func GetNetwork(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	for _, network := range *networks {
+	for _, network := range networks {
 		if network.Name == network_name {
 			r.JSON(res, http.StatusOK, network)
 			return
@@ -72,7 +72,7 @@ func GetNetworkIps(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	for _, network := range *networks {
+	for _, network := range networks {
 		if network.Name == network_name {
 			ips, err := network.Expand()
 			if err != nil {
@@ -82,6 +82,7 @@ func GetNetworkIps(res http.ResponseWriter, req *http.Request) {
 
 			c := NewCheck(ips)
 			c.Run()
+			network.Utilization = c.utilization
 
 			var out []*ResultSet
 
@@ -121,7 +122,7 @@ func PostReservation(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	for _, network := range *networks {
+	for _, network := range networks {
 		if network.Name == network_name {
 			ips, err := network.ExpandManaged()
 			if err != nil {
