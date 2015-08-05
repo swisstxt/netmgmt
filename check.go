@@ -109,6 +109,7 @@ func (c *check) getFree() {
 		}
 	}
 
+	c.utilization.Total = total
 	c.utilization.Used = used
 	c.utilization.Free = free
 	c.utilization.UsedPercent = used * 100 / total

@@ -31,8 +31,9 @@ type network struct {
 }
 
 type utilization struct {
-	Free        int `json:"name"`
-	Used        int `json:"name"`
+	Total       int `json:"total"`
+	Free        int `json:"free"`
+	Used        int `json:"used"`
 	FreePercent int `json:"free_percent"`
 	UsedPercent int `json:"used_percent"`
 }
