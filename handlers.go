@@ -39,7 +39,6 @@ func GetNodeInfo(res http.ResponseWriter, req *http.Request) {
 
 func GetNetworks(res http.ResponseWriter, req *http.Request) {
 	r := render.New()
-
 	r.JSON(res, http.StatusOK, networks)
 }
 
@@ -154,4 +153,9 @@ func PostReservation(res http.ResponseWriter, req *http.Request) {
 		}
 	}
 	r.JSON(res, http.StatusNotFound, "No matching network found")
+}
+
+func GetConfig(res http.ResponseWriter, req *http.Request) {
+	r := render.New()
+	r.JSON(res, http.StatusOK, config)
 }
