@@ -10,12 +10,14 @@ import (
 )
 
 type ResultSet struct {
-	IP       net.IP `json:"ip"`
-	Name     string `json:"name"`
-	Desc     string `json:"desc"`
-	Pingable bool   `json:"pingable"`
-	Lock     Lock   `json:"lock"`
-	Free     bool   `json:"free"`
+	IP           net.IP `json:"ip"`
+	Name         string `json:"name"`
+	Desc         string `json:"desc"`
+	Pingable     bool   `json:"pingable"`
+	Lock         Lock   `json:"lock"`
+	Free         bool   `json:"free"`
+	ForeignRange string `json:"foreign_range"`
+	Unmanaged    string `json:"unmanaged"`
 }
 
 func (rs ResultSet) Used() bool {
@@ -28,20 +30,22 @@ type check struct {
 	utilization utilization
 }
 
-func NewCheck(ips []net.IP) *check {
+func NewCheck(ips detailedIP) *check {
 	var c check
 	c.results = make(map[string]*ResultSet)
 	c.utilization = utilization{}
-	for _, ip := range ips {
+	for ip, details := range ips {
 		res := ResultSet{
-			IP:       ip,
-			Name:     "",
-			Desc:     "",
-			Pingable: false,
-			Lock:     Lock{},
-			Free:     false,
+			IP:           details.IP,
+			Name:         "",
+			Desc:         "",
+			Pingable:     false,
+			Lock:         Lock{},
+			Free:         false,
+			ForeignRange: "",
+			Unmanaged:    details.Unmanaged,
 		}
-		c.results[ip.String()] = &res
+		c.results[ip] = &res
 
 	}
 	return &c
@@ -93,6 +97,14 @@ func (c *check) isLocked() {
 	}
 }
 
+func (c *check) isForeign() {
+	//	for ip, r := range c.results {
+	//		c.Lock()
+	//
+	//		c.Unlock()
+	//	}
+}
+
 func (c *check) getFree() {
 	defer c.Unlock()
 	c.Lock()
@@ -120,5 +132,6 @@ func (c *check) Run() {
 	c.isResolvable()
 	c.isPingable()
 	c.isLocked()
+	c.isForeign()
 	c.getFree()
 }

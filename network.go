@@ -46,6 +46,7 @@ func (n network) Contains(ip net.IP) bool {
 	}
 	return ipnet.Contains(ip)
 }
+
 func (n network) Expand() ([]net.IP, error) {
 	out := []net.IP{}
 	ip, ipnet, err := net.ParseCIDR(n.CIDR)
@@ -60,8 +61,15 @@ func (n network) Expand() ([]net.IP, error) {
 	return out, nil
 }
 
-func (n network) ExpandManaged() ([]net.IP, error) {
-	out := []net.IP{}
+type detailedIP map[string]details
+
+type details struct {
+	IP        net.IP `json:"ip"`
+	Unmanaged string `json:"unmanaged"`
+}
+
+func (n network) ExpandDetailed() (detailedIP, error) {
+	out := detailedIP{}
 
 	all, err := n.Expand()
 	if err != nil {
@@ -72,26 +80,50 @@ func (n network) ExpandManaged() ([]net.IP, error) {
 	l := len(all) - 1
 	all = all[1:l]
 
-	substract := []net.IP{}
+	for _, ip := range all {
+		out[ip.String()] = details{IP: ip}
+	}
 
 	for _, dr := range n.DHCP {
-		substract = append(substract, dr.Expand()...)
+		for _, ip := range dr.Expand() {
+			out[ip.String()] = details{IP: ip, Unmanaged: "DHCP"}
+		}
 	}
 
 	for _, fr := range n.ForeignRanges {
-		substract = append(substract, fr.Rng.Expand()...)
+		for _, ip := range fr.Rng.Expand() {
+			out[ip.String()] = details{IP: ip, Unmanaged: "Foreign Range: " + fr.Description}
+		}
 	}
 
+	return out, nil
+}
+
+func (n network) ExpandManaged() (detailedIP, error) {
+	out := detailedIP{}
+
+	all, err := n.Expand()
+	if err != nil {
+		return out, err
+	}
+
+	// assume that last ip is broadcast an first is network
+	l := len(all) - 1
+	all = all[1:l]
+
 	for _, ip := range all {
-		managed := true
-		for _, sip := range substract {
-			if ip.Equal(sip) {
-				managed = false
-				break
-			}
+		out[ip.String()] = details{IP: ip}
+	}
+
+	for _, dr := range n.DHCP {
+		for _, ip := range dr.Expand() {
+			delete(out, ip.String()) //out[ip.String()] = details{Unmanaged: "DHCP"}
 		}
-		if managed {
-			out = append(out, ip)
+	}
+
+	for _, fr := range n.ForeignRanges {
+		for _, ip := range fr.Rng.Expand() {
+			delete(out, ip.String()) //out[ip.String()] = details{Unmanaged: fr.Description}
 		}
 	}
 

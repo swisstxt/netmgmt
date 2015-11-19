@@ -73,9 +73,9 @@ func GetNetworkIps(res http.ResponseWriter, req *http.Request) {
 
 	for _, network := range networks {
 		if network.Name == network_name {
-			ips, err := network.Expand()
+			ips, err := network.ExpandDetailed()
 			if err != nil {
-				r.JSON(res, http.StatusInternalServerError, "Network could net be expanded")
+				r.JSON(res, http.StatusInternalServerError, "Network could not be expanded")
 				return
 			}
 
