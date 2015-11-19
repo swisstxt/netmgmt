@@ -1,16 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
+
+	"gopkg.in/yaml.v2"
 )
 
 func ReadNetworks(data []byte) ([]*network, error) {
 	var networks []*network
 
-	if err := json.Unmarshal(data, &networks); err != nil {
+	if err := yaml.Unmarshal(data, &networks); err != nil {
 		return networks, err
 	}
 
@@ -18,24 +19,24 @@ func ReadNetworks(data []byte) ([]*network, error) {
 }
 
 type network struct {
-	Name          string         `json:"name"`
-	Description   string         `json:"description"`
-	CIDR          string         `json:"cidr"`
-	DC            string         `json:"dc"`
-	Gateway       net.IP         `json:"gateway"`
-	DNS           []net.IP       `json:"dns"`
-	Vlan          vlan           `json:"vlan"`
-	DHCP          []rng          `json:"dhcp"`
-	ForeignRanges []foreignRange `json:"foreign_ranges"`
-	Utilization   utilization    `json:"utilization"`
+	Name          string         `yaml:"name" json:"name"`
+	Description   string         `yaml:"description" json:"description"`
+	CIDR          string         `yaml:"cidr" json:"cidr"`
+	DC            string         `yaml:"dc" json:"dc"`
+	Gateway       net.IP         `yaml:"gateway" json:"gateway"`
+	DNS           []net.IP       `yaml:"dns" json:"dns"`
+	Vlan          vlan           `yaml:"vlan" json:"vlan"`
+	DHCP          []rng          `yaml:"dhcp" json:"dhcp"`
+	ForeignRanges []foreignRange `yaml:"foreign_ranges" json:"foreign_ranges"`
+	Utilization   utilization    `yaml:"utilization" json:"utilization"`
 }
 
 type utilization struct {
-	Total       int `json:"total"`
-	Free        int `json:"free"`
-	Used        int `json:"used"`
-	FreePercent int `json:"free_percent"`
-	UsedPercent int `json:"used_percent"`
+	Total       int `yaml:"total" json:"total"`
+	Free        int `yaml:"free" json:"free"`
+	Used        int `yaml:"used" json:"used"`
+	FreePercent int `yaml:"free_percent" json:"free_percent"`
+	UsedPercent int `yaml:"used_percent" json:"used_percent"`
 }
 
 func (n network) Contains(ip net.IP) bool {
@@ -98,8 +99,8 @@ func (n network) ExpandManaged() ([]net.IP, error) {
 }
 
 type rng struct {
-	Start net.IP `json:"start"`
-	End   net.IP `json:"end"`
+	Start net.IP `yaml:"start" json:"start"`
+	End   net.IP `yaml:"end" json:"end"`
 }
 
 func (r rng) Expand() []net.IP {
@@ -136,13 +137,13 @@ func nextIP(ip net.IP) net.IP {
 }
 
 type vlan struct {
-	Name string `json:"name"`
-	Id   int64  `json:"id"`
+	Name string `yaml:"name" json:"name"`
+	Id   int64  `yaml:"id" json:"id"`
 }
 
 type foreignRange struct {
-	Description string `json:"description"`
-	Rng         rng    `json:"range"`
+	Description string `yaml:"description" json:"description"`
+	Rng         rng    `yaml:"range" json:"range"`
 }
 
 func tokenizeIP(ip net.IP) ([]uint, error) {

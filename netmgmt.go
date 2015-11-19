@@ -30,7 +30,7 @@ var config configuration
 
 func init() {
 	env.Var(&config.Port, "PORT", "8080", "Port to bind to")
-	env.Var(&config.File, "FILE", "data/ipranges.json", "Base directories of the repos")
+	env.Var(&config.File, "FILE", "data/netdef.yaml", "Base directories of the repos")
 	env.Var(&config.LockDuration, "LOCK_DURATION", "30", "Duration of a lock in minutes")
 }
 
