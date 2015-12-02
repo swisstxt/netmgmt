@@ -23,6 +23,7 @@ type network struct {
 	Description   string         `yaml:"description" json:"description"`
 	CIDR          string         `yaml:"cidr" json:"cidr"`
 	DC            string         `yaml:"dc" json:"dc"`
+	Managed       bool           `yaml:"managed" json:"managed"`
 	Gateway       net.IP         `yaml:"gateway" json:"gateway"`
 	DNS           []net.IP       `yaml:"dns" json:"dns"`
 	Vlan          vlan           `yaml:"vlan" json:"vlan"`
