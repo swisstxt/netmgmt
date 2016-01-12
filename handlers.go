@@ -176,5 +176,5 @@ func GetUI(res http.ResponseWriter, req *http.Request) {
 	//r.HTML(res, http.StatusOK, "index", config)
 	r := render.New()
 	data, _ := Asset("assets/index.tmpl")
-	r.Text(res, http.StatusOK, data)
+	r.Text(res, http.StatusOK, string(data))
 }
