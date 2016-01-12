@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"math/rand"
 	"net/http"
 	"time"
@@ -162,17 +161,20 @@ func GetConfig(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetUI(res http.ResponseWriter, req *http.Request) {
-	fmt.Println("1")
-	r := render.New(render.Options{
-		Directory: "assets",
-		Asset: func(name string) ([]byte, error) {
-			return Asset(name)
-		},
-		AssetNames: func() []string {
-			return []string{"assets/index.tmpl"}
-		},
-		Delims: render.Delims{"<<<", ">>>"},
-	})
-	fmt.Println("2")
-	r.HTML(res, http.StatusOK, "index", config)
+	//fmt.Println("1")
+	//r := render.New(render.Options{
+	//	Directory: "assets",
+	//	Asset: func(name string) ([]byte, error) {
+	//		return Asset(name)
+	//	},
+	//	AssetNames: func() []string {
+	//		return []string{"assets/index.tmpl"}
+	//	},
+	//	Delims: render.Delims{"<<<", ">>>"},
+	//})
+	//fmt.Println("2")
+	//r.HTML(res, http.StatusOK, "index", config)
+	r := render.New()
+	data, _ := Asset("assets/index.tmpl")
+	r.Text(res, http.StatusOK, data)
 }
