@@ -159,3 +159,17 @@ func GetConfig(res http.ResponseWriter, req *http.Request) {
 	r := render.New()
 	r.JSON(res, http.StatusOK, config)
 }
+
+func GetUI(res http.ResponseWriter, req *http.Request) {
+	r := render.New(render.Options{
+		Directory: "assets",
+		Asset: func(name string) ([]byte, error) {
+			return Asset(name)
+		},
+		AssetNames: func() []string {
+			return []string{"assets/index.tmpl"}
+		},
+		Delims: render.Delims{"<<<", ">>>"},
+	})
+	r.HTML(res, http.StatusOK, "index", config)
+}

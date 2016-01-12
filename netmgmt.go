@@ -1,5 +1,7 @@
 package main
 
+//go:generate go-bindata -prefix 'assets' -o assets.go assets/
+
 import (
 	"encoding/json"
 	"io/ioutil"
@@ -70,6 +72,7 @@ func main() {
 	router.HandleFunc("/networks/{net}/list", GetNetworkIps).Methods("GET")
 	router.HandleFunc("/networks/{net}", PostReservation).Methods("POST")
 	router.HandleFunc("/conf", GetConfig).Methods("GET")
+	router.HandleFunc("/ui", GetUI).Methods("GET")
 
 	n := negroni.New(
 		negroni.NewRecovery(),
