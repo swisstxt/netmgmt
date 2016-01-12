@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"time"
@@ -161,6 +162,7 @@ func GetConfig(res http.ResponseWriter, req *http.Request) {
 }
 
 func GetUI(res http.ResponseWriter, req *http.Request) {
+	fmt.Println("1")
 	r := render.New(render.Options{
 		Directory: "assets",
 		Asset: func(name string) ([]byte, error) {
@@ -171,5 +173,6 @@ func GetUI(res http.ResponseWriter, req *http.Request) {
 		},
 		Delims: render.Delims{"<<<", ">>>"},
 	})
+	fmt.Println("2")
 	r.HTML(res, http.StatusOK, "index", config)
 }
