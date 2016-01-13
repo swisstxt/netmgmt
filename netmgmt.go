@@ -1,6 +1,6 @@
 package main
 
-//go:generate go-bindata -prefix 'assets' -o assets.go assets/
+//go:generate go-bindata -o assets.go assets/
 
 import (
 	"encoding/json"
@@ -19,6 +19,8 @@ import (
 
 type configuration struct {
 	Port         string `json:"port"`
+	Address      string `json:"address"`
+	Api          string `json:"api"`
 	File         string `json:"file"`
 	LockDuration string `json:"lockDuration"`
 }
@@ -32,6 +34,8 @@ var config configuration
 
 func init() {
 	env.Var(&config.Port, "PORT", "8080", "Port to bind to")
+	env.Var(&config.Address, "ADDR", "0.0.0.0", "Address to bind to")
+	env.Var(&config.Api, "API", "http://127.0.0.1:8080", "Base URL where the API is reachable public")
 	env.Var(&config.File, "FILE", "data/netdef.yaml", "Base directories of the repos")
 	env.Var(&config.LockDuration, "LOCK_DURATION", "30", "Duration of a lock in minutes")
 }
@@ -81,6 +85,6 @@ func main() {
 	)
 	n.UseHandler(router)
 
-	http.ListenAndServe(":"+config.Port, n)
+	http.ListenAndServe(config.Address+":"+config.Port, n)
 
 }
