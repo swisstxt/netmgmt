@@ -169,7 +169,7 @@ func GetUI(res http.ResponseWriter, req *http.Request) {
 		AssetNames: func() []string {
 			return []string{"assets/index.tmpl"}
 		},
-		Delims: render.Delims{"<<<", ">>>"},
+		Delims: render.Delims{"[[[", "]]]"},
 	})
 	r.HTML(res, http.StatusOK, "index", config)
 }
