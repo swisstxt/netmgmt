@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"time"
@@ -174,7 +175,6 @@ func GetUI(res http.ResponseWriter, req *http.Request) {
 	//})
 	//fmt.Println("2")
 	//r.HTML(res, http.StatusOK, "index", config)
-	r := render.New()
 	data, _ := Asset("assets/index.tmpl")
-	r.Text(res, http.StatusOK, string(data))
+	fmt.Fprintf(res, string(data))
 }
