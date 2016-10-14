@@ -269,7 +269,7 @@ j[b.restangularFields.post]=_.bind(F,j),j[b.restangularFields.remove]=_.bind(D,j
 </script>
 
             <script>
-"use strict";angular.module("netmgmt",["ui.router","restangular","ngAnimate"]).config(["$urlRouterProvider","$stateProvider",function(a,b){b.state("dash",{url:"/dash",templateUrl:"views/dash.html",controller:"DashCtrl"}).state("settings",{url:"/settings",templateUrl:"views/settings.html",controller:"SettingsCtrl"}).state("networks",{url:"/networks",templateUrl:"views/networks.list.html",controller:"NetworksListCtrl"}).state("network",{url:"/networks/:name",templateUrl:"views/networks.show.html",controller:"NetworkListCtrl"}).state("network.add",{url:"/reserve",templateUrl:"views/networks.add.html",controller:"AddCtrl"}).state("network.details",{url:"/details",templateUrl:"views/networks.details.html",controller:"DetailsCtrl"}),a.otherwise("/networks")}]).run(["Restangular","$rootScope","$location","$http",function(a,b,c,d){b.baseUrl="[[[.Api]]]/",a.setBaseUrl(b.baseUrl)}]),angular.module("netmgmt").controller("DashCtrl",function(a){a.id="dash"}),angular.module("netmgmt").controller("SettingsCtrl",["$scope","Restangular","$state","$stateParams","$rootScope",function(a,b,c,d,e){a.api=e.baseUrl;var f=b.one("conf");a.reloadScope=function(){f.get().then(function(b){a.apiSettings=b},function(){console.log("Failed to fetch config from server")})},a.reloadScope()}]),angular.module("netmgmt").controller("NetworkListCtrl",["$scope","Restangular","$state","$stateParams",function(a,b,c,d){a.name=d.name;var e=b.one("networks",a.name);a.loading=!0,a.hasRes=!1,a.reloadScope=function(){e.getList("list").then(function(b){a.network=b,a.hasReservation(b),a.loading=!1},function(){console.log("Failed to fetch nodes from server")}),e.get().then(function(b){a.nw=b},function(){console.log("Failed to fetch network from server")})},a.search=function(b){return angular.lowercase(b.ip).indexOf(a.query||"")!==-1||angular.lowercase(b.desc).indexOf(a.query||"")!==-1||angular.lowercase(b.name).indexOf(a.query||"")!==-1},a.hasReservation=function(b){for(var c=b.length,d=0;d<c;d++)if(""!=b[d].lock.comment)return void(a.hasRes=!0);a.hasRes=!1},a.ipOrder=function(a){var b=a.ip.split(".");return parseInt(b[0])*Math.pow(256,3)+parseInt(b[1])*Math.pow(256,2)+256*parseInt(b[2])+parseInt(b[3])},a.reloadScope()}]),angular.module("netmgmt").controller("NetworksListCtrl",["$scope","Restangular","$state","$stateParams",function(a,b,c,d){var e=b.all("networks");a.reloadScope=function(){e.getList().then(function(b){a.networks=b},function(){consle.log("Failed to fetch networks from server")})},a.search=function(b){return angular.lowercase(b.name).indexOf(a.query||"")!==-1||angular.lowercase(b.description).indexOf(a.query||"")!==-1||angular.lowercase(b.cidr).indexOf(a.query||"")!==-1||angular.lowercase(b.dc).indexOf(a.query||"")!==-1||angular.lowercase(b.vlan.id).indexOf(a.query||"")!==-1},a.reloadScope()}]),angular.module("netmgmt").controller("AddCtrl",["$scope","$rootScope","$location","Restangular",function(a,b,c,d){a.$nwName=a.$parent.name,a.addReservation=function(){if(void 0!==a.comment&&""!==a.comment){var b=d.one("networks",a.$nwName);b.post("",{comment:a.comment}).then(function(){a.$parent.reloadScope(),c.path("/networks/"+a.$nwName)},function(){console.log("could not post")})}else alert("No comment given")}}]);
+"use strict";angular.module("netmgmt",["ui.router","restangular","ngAnimate"]).config(["$urlRouterProvider","$stateProvider",function(a,b){b.state("dash",{url:"/dash",templateUrl:"views/dash.html",controller:"DashCtrl"}).state("settings",{url:"/settings",templateUrl:"views/settings.html",controller:"SettingsCtrl"}).state("networks",{url:"/networks",templateUrl:"views/networks.list.html",controller:"NetworksListCtrl"}).state("network",{url:"/networks/:name",templateUrl:"views/networks.show.html",controller:"NetworkListCtrl"}).state("network.add",{url:"/reserve",templateUrl:"views/networks.add.html",controller:"AddCtrl"}).state("network.details",{url:"/details",templateUrl:"views/networks.details.html",controller:"DetailsCtrl"}).state("nodes",{url:"/nodes",templateUrl:"views/nodes.html",controller:"NodesCtrl"}),a.otherwise("/networks")}]).run(["Restangular","$rootScope","$location","$http",function(a,b,c,d){b.baseUrl="[[[.Api]]]/",a.setBaseUrl(b.baseUrl)}]),angular.module("netmgmt").controller("DashCtrl",function(a){a.id="dash"}),angular.module("netmgmt").controller("SettingsCtrl",["$scope","Restangular","$state","$stateParams","$rootScope",function(a,b,c,d,e){a.api=e.baseUrl;var f=b.one("conf");a.reloadScope=function(){f.get().then(function(b){a.apiSettings=b},function(){console.log("Failed to fetch config from server")})},a.reloadScope()}]),angular.module("netmgmt").controller("NetworkListCtrl",["$scope","Restangular","$state","$stateParams",function(a,b,c,d){a.name=d.name;var e=b.one("networks",a.name);a.loading=!0,a.hasRes=!1,a.reloadScope=function(){e.getList("list").then(function(b){a.network=b,a.hasReservation(b),a.loading=!1},function(){console.log("Failed to fetch nodes from server")}),e.get().then(function(b){a.nw=b},function(){console.log("Failed to fetch network from server")})},a.search=function(b){return angular.lowercase(b.ip).indexOf(a.query||"")!==-1||angular.lowercase(b.desc).indexOf(a.query||"")!==-1||angular.lowercase(b.name).indexOf(a.query||"")!==-1},a.hasReservation=function(b){for(var c=b.length,d=0;d<c;d++)if(""!=b[d].lock.comment)return void(a.hasRes=!0);a.hasRes=!1},a.ipOrder=function(a){var b=a.ip.split(".");return parseInt(b[0])*Math.pow(256,3)+parseInt(b[1])*Math.pow(256,2)+256*parseInt(b[2])+parseInt(b[3])},a.reloadScope()}]),angular.module("netmgmt").controller("NetworksListCtrl",["$scope","Restangular","$state","$stateParams",function(a,b,c,d){var e=b.all("networks");a.reloadScope=function(){e.getList().then(function(b){a.networks=b},function(){consle.log("Failed to fetch networks from server")})},a.search=function(b){return angular.lowercase(b.name).indexOf(a.query||"")!==-1||angular.lowercase(b.description).indexOf(a.query||"")!==-1||angular.lowercase(b.cidr).indexOf(a.query||"")!==-1||angular.lowercase(b.dc).indexOf(a.query||"")!==-1||angular.lowercase(b.vlan.id).indexOf(a.query||"")!==-1},a.reloadScope()}]),angular.module("netmgmt").controller("NodesCtrl",["$scope","Restangular","$state","$stateParams","$rootScope",function(a,b,c,d,e){a.queried=!1,a.success=!1,a.failed_nodename="",a.fetchNodeInfo=function(){var c=b.one("nodes",a.nodename+"."+a.domain);c.get().then(function(b){a.node=b,a.queried=!0,a.success=!0},function(){a.queried=!0,a.success=!1,a.failed_nodename=a.nodename+"."+a.domain,console.log("Failed to fetch node infos from server")})}}]),angular.module("netmgmt").controller("AddCtrl",["$scope","$rootScope","$location","Restangular",function(a,b,c,d){a.$nwName=a.$parent.name,a.addReservation=function(){if(void 0!==a.comment&&""!==a.comment){var b=d.one("networks",a.$nwName);b.post("",{comment:a.comment}).then(function(){a.$parent.reloadScope(),c.path("/networks/"+a.$nwName)},function(){console.log("could not post")})}else alert("No comment given")}}]);
 </script>
 
             <script src="https://storage.googleapis.com/code.getmdl.io/1.0.2/material.min.js"></script>
@@ -307,6 +307,76 @@ j[b.restangularFields.post]=_.bind(F,j),j[b.restangularFields.remove]=_.bind(D,j
         </table>
     </div>
 </div>
+
+</script>
+<script type="text/ng-template" id="views/nodes.html">
+<div class="inner-content">
+    <h3>
+        Node Lookup
+    </h3>
+
+    <form ng-submit="fetchNodeInfo()">
+      <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+        <input class="mdl-textfield__input" type="text" id="search_query_node" data-ng-model="nodename" />
+        <label class="mdl-textfield__label" for="search_query_node">Node Name...</label>
+      </div>
+
+      <div class="mdl-textfield mdl-js-textfield">
+        <input class="mdl-textfield__input" type="text" id="search_query_domain" data-ng-model="domain" data-ng-init="domain = 'stxt.media.int'" />
+        <label class="mdl-textfield__label" for="search_query_domain"></label>
+      </div>
+
+      <button type="submit" id="submit" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+        Lookup!
+      </button>
+    </form>
+
+    <div data-ng-if="success && queried">
+        <table class="mdl-data-table mdl-js-data-table mdl-shadow--2dp" width="100%">
+            <thead>
+                <tr>
+                    <th class="mdl-data-table__cell--non-numeric">Key</th>
+                    <th class="mdl-data-table__cell--non-numeric">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="mdl-data-table__cell--non-numeric">Network Name</td>
+                    <td class="mdl-data-table__cell--non-numeric">{{node.name}}</td>
+                </tr>
+                <tr>
+                    <td class="mdl-data-table__cell--non-numeric">Network Description</td>
+                    <td class="mdl-data-table__cell--non-numeric">{{node.description}}</td>
+                </tr>
+                <tr>
+                    <td class="mdl-data-table__cell--non-numeric">Network CIDR</td>
+                    <td class="mdl-data-table__cell--non-numeric">{{node.cidr}}</td>
+                </tr>
+                <tr>
+                    <td class="mdl-data-table__cell--non-numeric">Datacenter</td>
+                    <td class="mdl-data-table__cell--non-numeric">{{node.dc}}</td>
+                </tr>
+                <tr>
+                    <td class="mdl-data-table__cell--non-numeric">Network Gateway</td>
+                    <td class="mdl-data-table__cell--non-numeric">{{node.gateway}}</td>
+                </tr>
+                <tr>
+                    <td class="mdl-data-table__cell--non-numeric">VLAN Details</td>
+                    <td class="mdl-data-table__cell--non-numeric">{{node.vlan.name}} ({{node.vlan.id}})</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mdl-typography--display-title" data-ng-if="!success && queried">
+        Node <b>{{failed_nodename}}</b> not found
+    </div>
+
+    <div class="mdl-typography--display-title" data-ng-if="!queried">
+      Enter a node name and get details
+    </div>
+</div>
+<script>componentHandler.upgradeAllRegistered();</script>
 
 </script>
 <script type="text/ng-template" id="views/networks.show.html">
@@ -523,6 +593,9 @@ j[b.restangularFields.post]=_.bind(F,j),j[b.restangularFields.remove]=_.bind(D,j
 <hr />
 <span class="mdl-navigation__link"><b>Networks Unmanaged</b></span>
 <a class="mdl-navigation__link" ui-sref="network({name: nw.name})" data-ng-if="!nw.managed" data-ng-repeat="nw in networks | filter:filter:strict | orderBy:'[dc,name]'">{{nw.name}} ({{nw.dc| uppercase}})</a>
+<hr />
+<span class="mdl-navigation__link"><b>Node Query</b></span>
+<a class="mdl-navigation__link" ui-sref="nodes">Lookup Node</a>
 <hr />
 <a class="mdl-navigation__link" ui-sref="settings">Settings</a>
 
