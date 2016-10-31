@@ -73,7 +73,7 @@ func main() {
 	router.HandleFunc("/nodes/{node}", GetNodeInfo).Methods("GET")
 	router.HandleFunc("/networks", GetNetworks).Methods("GET")
 	router.HandleFunc("/networks/{net}", GetNetwork).Methods("GET")
-	router.HandleFunc("/networks/{net}/list", GetNetworkIps).Methods("GET")
+	router.HandleFunc("/networks/{net}/ips", GetNetworkIps).Methods("GET")
 	router.HandleFunc("/networks/{net}", PostReservation).Methods("POST")
 	router.HandleFunc("/conf", GetConfig).Methods("GET")
 	router.HandleFunc("/ui", GetUI).Methods("GET")
