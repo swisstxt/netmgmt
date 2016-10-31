@@ -35,7 +35,7 @@ var config configuration
 func init() {
 	env.Var(&config.Port, "PORT", "8080", "Port to bind to")
 	env.Var(&config.Address, "ADDR", "0.0.0.0", "Address to bind to")
-	env.Var(&config.Api, "API", "http://127.0.0.1:8080", "Base URL where the API is reachable public")
+	env.Var(&config.Api, "API", "http://127.0.0.1:8080", "Base URL where the API will be reachable. This URL is used be the frontend (/ui) in order to access the backend.")
 	env.Var(&config.File, "FILE", "data/netdef.yaml", "Base directories of the repos")
 	env.Var(&config.LockDuration, "LOCK_DURATION", "30", "Duration of a lock in minutes")
 }
