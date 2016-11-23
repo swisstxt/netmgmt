@@ -24,7 +24,7 @@ node('centos7') {
     }
     
     stage('Prepare Packaging') {
-        sh "mkdir -p ${sourcesDir}/github.com/swisstxt"
+        sh "mkdir -p ${sourcesDir}/src/github.com/swisstxt"
         sh "ln -s ${workspaceDir} ${projectSourceDir}"
     }
     
