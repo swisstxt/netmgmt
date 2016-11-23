@@ -1,0 +1,17 @@
+---
+- name: "BLA"
+  managed: no
+  description: "Bla Net"
+  cidr: "10.100.7.0/24"
+  gateway: "10.100.7.1"
+  dns:
+    - "8.8.8.8"
+  vlan:
+    id: 666
+    name: "BLA"
+  dc: "NY"
+  foreign_ranges:
+    - description: "Test Section"
+      range:
+        start: "10.100.7.33"
+        end: "10.100.7.89"
