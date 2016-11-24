@@ -1,15 +1,14 @@
 node('centos7') {
     def name = env.JOB_NAME
     def branch = env.BRANCH_NAME
-    def repoName = "github.com/swisstxt/netmgmt"
-    def repoUrl = "https://github.com/swisstxt/netmgmt.git"
-    def rpmRepoUrl = "https://github.com/swisstxt/rpm-netmgmt.git"
-    def branch = "newdevops"
+    def orgName = "github.com/swisstxt"
     
     def workspaceDir = env.WORKSPACE
     def specsDir = "${workspaceDir}/SPECS"
     def sourcesDir = "${workspaceDir}/SOURCES"
-    def relProjectSourceDir = "SOURCES/src/${repoName}"
+    def relProjectOrgDir = "SOURCES/src/${orgName}"
+    def projectOrgDir = "${workspaceDir}/${relProjectOrgDir}"
+    def relProjectSourceDir = "${relProjectOrgDir}/${name}"
     def projectSourceDir = "${workspaceDir}/${relProjectSourceDir}"
     def relRpmbuildDir = "rpmbuild"
     def rpmbuildDir = "${workspaceDir}/${relRpmbuildDir}"
@@ -25,7 +24,7 @@ node('centos7') {
     }
     
     stage('Prepare Packaging') {
-        sh "mkdir -p ${sourcesDir}/src/github.com/swisstxt"
+        sh "mkdir -p ${projectOrgDir}"
         sh "ln -s ${workspaceDir} ${projectSourceDir}"
     }
     
