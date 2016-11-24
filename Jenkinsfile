@@ -25,7 +25,7 @@ node('centos7') {
     
     stage('Prepare Packaging') {
         sh "mkdir -p ${projectOrgDir}"
-        sh "ln -s ${workspaceDir} ${projectSourceDir}"
+        sh "ln -sf ${workspaceDir} ${projectSourceDir}"
     }
     
     stage('Set Build Variables') {
