@@ -1,5 +1,5 @@
 node('centos7') {
-    def name = env.JOB_NAME
+    def name = env.JOB_BASE_NAME
     def branch = env.BRANCH_NAME
     def orgName = "github.com/swisstxt"
     
