@@ -1,5 +1,6 @@
 node('centos7') {
-    def name = "netmgmt"
+    def name = env.JOB_NAME
+    def branch = env.BRANCH_NAME
     def repoName = "github.com/swisstxt/netmgmt"
     def repoUrl = "https://github.com/swisstxt/netmgmt.git"
     def rpmRepoUrl = "https://github.com/swisstxt/rpm-netmgmt.git"
