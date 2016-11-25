@@ -120,7 +120,7 @@ node('centos7') {
                 text(name: 'PLAY_ARGUMENTS', value: 'echo "Executing: yum clean metadata && yum update netmgmt"'),
             ]
         } else {
-            echo "Not deploying on this branch")
+            echo "Not deploying on this branch"
         }
     }
 }
