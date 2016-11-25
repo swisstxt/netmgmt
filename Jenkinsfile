@@ -18,12 +18,14 @@ node('centos7') {
     def spec
     def arch
     def osRelease
+    def rev
     
     stage('Checkout Repo') {
+        echo scm.getUserRemoteConfigs()
         checkout scm
     }
     
-    stage('Prepare Packaging') {
+    stage('Prepare Build') {
         sh "mkdir -p ${projectOrgDir}"
         sh "ln -sf ${workspaceDir} ${projectSourceDir}"
     }
@@ -43,6 +45,10 @@ node('centos7') {
         ).trim()
         version = sh(
             script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
+            returnStdout: true
+        ).trim()
+        rev = sh(
+            script: "git rev-parse --short HEAD",
             returnStdout: true
         ).trim()
         env.GOPATH = sourcesDir
