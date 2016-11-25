@@ -21,7 +21,6 @@ node('centos7') {
     def rev
     
     stage('Checkout Repo') {
-        echo scm.getUserRemoteConfigs().toString()
         checkout scm
     }
     
@@ -51,6 +50,7 @@ node('centos7') {
             script: "git rev-parse --short HEAD",
             returnStdout: true
         ).trim()
+        release = "${release}.rev"
         env.GOPATH = sourcesDir
         env.PATH = "${sourcesDir}/bin:${env.PATH}"
     }
