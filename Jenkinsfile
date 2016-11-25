@@ -21,7 +21,7 @@ node('centos7') {
     def rev
     
     stage('Checkout Repo') {
-        echo scm.getUserRemoteConfigs()
+        echo scm.getUserRemoteConfigs().toString()
         checkout scm
     }
     
