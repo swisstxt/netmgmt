@@ -2,6 +2,7 @@ node('centos7') {
     def name = "netmgmt"
     def branch = env.BRANCH_NAME
     def orgName = "github.com/swisstxt"
+    def doDeploy = true
     
     def workspaceDir = env.WORKSPACE
     def specsDir = "${workspaceDir}/SPECS"
@@ -21,6 +22,7 @@ node('centos7') {
     def rev
     
     stage('Checkout Repo') {
+        echo env.toString()
         checkout scm
     }
     
@@ -53,6 +55,7 @@ node('centos7') {
         release = "${release}.${rev}"
         env.GOPATH = sourcesDir
         env.PATH = "${sourcesDir}/bin:${env.PATH}"
+        // if (branch == 'stage') doDeploy = false;
     }
     
     stage('Clean Before Build') {
@@ -101,5 +104,23 @@ node('centos7') {
     stage('Archive RPM') {
         archiveArtifacts "${relRpmbuildDir}/*.rpm"
         archiveArtifacts "${relRpmbuildDir}/*/*.rpm"
+    }
+    
+    stage('Push RPM') {
+        echo "Would execute: /opt/buildhelper/buildhelper pushrpm yum-01.stxt.media.int:8080/swisstxt-centos"
+    }
+    
+    stage('Deploy RPM') {
+        if (doDeploy) {
+            build job: 'deploy.install.genericstxt', parameters: [
+                string(name: 'INVENTORY_HOST', value: 'pcache'),
+                string(name: 'INVENTORY_NAME', value: 'hosts/integration'),
+                string(name: 'PLAY_TYPE', value: 'task'),
+                string(name: 'PLAY_MODULE', value: 'shell'),
+                text(name: 'PLAY_ARGUMENTS', value: 'echo "Executing: yum clean metadata && yum update netmgmt"'),
+            ]
+        } else {
+            echo "Not deploying on this branch")
+        }
     }
 }
