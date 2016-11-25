@@ -50,7 +50,7 @@ node('centos7') {
             script: "git rev-parse --short HEAD",
             returnStdout: true
         ).trim()
-        release = "${release}.rev"
+        release = "${release}.${rev}"
         env.GOPATH = sourcesDir
         env.PATH = "${sourcesDir}/bin:${env.PATH}"
     }
