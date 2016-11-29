@@ -40,7 +40,8 @@ node('centos7') {
          * JOB_NAME:deploy.build.netmgmt.stage,
          * JOB_URL:https://build.swisstxt.ch/job/deploy.build.netmgmt.stage/
          */
-        echo scm.toString()
+        //echo scm.toString()
+        echo "Branch: ${branch}"
         checkout scm
     }
     
