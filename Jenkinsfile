@@ -22,7 +22,7 @@ node('centos7') {
     def rev
     
     stage('Checkout Repo') {
-        echo env.toString()
+        echo env.environment.toString()
         checkout scm
     }
     
