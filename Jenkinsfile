@@ -22,7 +22,25 @@ node('centos7') {
     def rev
     
     stage('Checkout Repo') {
-        echo env.getEnvironment().toString()
+        //echo env.getEnvironment().toString()
+        /* Available environment variables:
+         * BUILD_DISPLAY_NAME:#5,
+         * BUILD_ID:5,
+         * BUILD_NUMBER:5,
+         * BUILD_TAG:jenkins-deploy.build.netmgmt.stage-5,
+         * BUILD_URL:https://build.swisstxt.ch/job/deploy.build.netmgmt.stage/5/,
+         * CLASSPATH:,
+         * HUDSON_HOME:/var/lib/jenkins,
+         * HUDSON_SERVER_COOKIE:0123456789abcdef,
+         * HUDSON_URL:https://build.swisstxt.ch/,
+         * JENKINS_HOME:/var/lib/jenkins,
+         * JENKINS_SERVER_COOKIE:0123456789abcdef,
+         * JENKINS_URL:https://build.swisstxt.ch/,
+         * JOB_BASE_NAME:deploy.build.netmgmt.stage,
+         * JOB_NAME:deploy.build.netmgmt.stage,
+         * JOB_URL:https://build.swisstxt.ch/job/deploy.build.netmgmt.stage/
+         */
+        echo scm.toString()
         checkout scm
     }
     
