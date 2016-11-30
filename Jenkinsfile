@@ -25,7 +25,7 @@ node('centos7') {
 	
 	stage('Checkout Repo') {
 		checkout scm
-		sh 'echo ${GIT_BRANCH}'
+		sh 'printenv'
 	}
 		
 	stage('Set Build Variables') {
