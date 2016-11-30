@@ -1,8 +1,7 @@
 node('centos7') {
     def name = "netmgmt"
-    def branch = env.BRANCH_NAME
     def orgName = "github.com/swisstxt"
-    def doDeploy = true
+    def stageFilter = ~/(?:release|hotfix)-(?<version>[0-9]+(?:\.[0-9]+))*/
     
     def workspaceDir = env.WORKSPACE
     def specsDir = "${workspaceDir}/SPECS"
@@ -14,40 +13,17 @@ node('centos7') {
     def relRpmbuildDir = "rpmbuild"
     def rpmbuildDir = "${workspaceDir}/${relRpmbuildDir}"
     
-    def version
+    def branch = ''
+    def version = ''
     def release = env.BUILD_NUMBER
-    def spec
-    def arch
-    def osRelease
-    def rev
+    def spec = ''
+    def arch = ''
+    def osRelease = ''
+    def rev = ''
+    def stage = false
     
     stage('Checkout Repo') {
-        //echo env.getEnvironment().toString()
-        /* Available environment variables:
-         * BUILD_DISPLAY_NAME:#5,
-         * BUILD_ID:5,
-         * BUILD_NUMBER:5,
-         * BUILD_TAG:jenkins-deploy.build.netmgmt.stage-5,
-         * BUILD_URL:https://build.swisstxt.ch/job/deploy.build.netmgmt.stage/5/,
-         * CLASSPATH:,
-         * HUDSON_HOME:/var/lib/jenkins,
-         * HUDSON_SERVER_COOKIE:0123456789abcdef,
-         * HUDSON_URL:https://build.swisstxt.ch/,
-         * JENKINS_HOME:/var/lib/jenkins,
-         * JENKINS_SERVER_COOKIE:0123456789abcdef,
-         * JENKINS_URL:https://build.swisstxt.ch/,
-         * JOB_BASE_NAME:deploy.build.netmgmt.stage,
-         * JOB_NAME:deploy.build.netmgmt.stage,
-         * JOB_URL:https://build.swisstxt.ch/job/deploy.build.netmgmt.stage/
-         */
-        //echo scm.toString()
-        echo "Branch: ${branch}"
         checkout scm
-    }
-    
-    stage('Prepare Build') {
-        sh "mkdir -p ${projectOrgDir}"
-        sh "ln -sf ${workspaceDir} ${projectSourceDir}"
     }
     
     stage('Set Build Variables') {
@@ -74,7 +50,21 @@ node('centos7') {
         release = "${release}.${rev}"
         env.GOPATH = sourcesDir
         env.PATH = "${sourcesDir}/bin:${env.PATH}"
-        // if (branch == 'stage') doDeploy = false;
+        branch = env.BRANCH_NAME
+        branchMatch = (branch =~ stageFilter)
+        if (branchMatch.matches()) {
+            stage = true;
+            version = branchMatch.group("version")
+        }
+        echo "name=${name}"
+        echo "branch=${branch}"
+        echo "version=${version}"
+        echo "release=${release}"
+    }
+    
+    stage('Prepare Build') {
+        sh "mkdir -p ${projectOrgDir}"
+        sh "ln -sf ${workspaceDir} ${projectSourceDir}"
     }
     
     stage('Clean Before Build') {
@@ -130,7 +120,7 @@ node('centos7') {
     }
     
     stage('Deploy RPM') {
-        if (doDeploy) {
+        if (stage) {
             build job: 'deploy.install.genericstxt', parameters: [
                 string(name: 'INVENTORY_HOST', value: 'pcache'),
                 string(name: 'INVENTORY_NAME', value: 'hosts/integration'),
@@ -139,7 +129,7 @@ node('centos7') {
                 text(name: 'PLAY_ARGUMENTS', value: 'echo "Executing: yum clean metadata && yum update netmgmt"'),
             ]
         } else {
-            echo "Not deploying on this branch"
+            echo "Release builds are not auto-deployed."
         }
     }
 }
