@@ -63,13 +63,14 @@ node('centos7') {
 		} else {
 			def branchMatch = (branch =~ stageFilter)
 			if (branchMatch) {
-				lStage = 'stage-';
+				lStage = '-stage';
 				lVersion = branchMatch[0][1]
 			} else {
 				error "Cannot determine version to build reliably. Exiting."
 			}
 		}
-
+		
+		name = "${name}${stage}"
 		stage = lStage
 		version = lVersion
 		release = "${release}.${rev}"
