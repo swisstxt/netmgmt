@@ -25,8 +25,7 @@ node('centos7') {
 	
 	stage('Checkout Repo') {
 		checkout scm
-		echo env.BUILD_BRANCH
-		echo env.BRANCH_NAME
+		echo env.getEnvironment().toString()
 	}
 		
 	stage('Set Build Variables') {
