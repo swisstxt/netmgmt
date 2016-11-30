@@ -48,22 +48,25 @@ node('centos7') {
 		env.GOPATH = sourcesDir
 		env.PATH = "${sourcesDir}/bin:${env.PATH}"
 		branch = env.BRANCH_NAME
-		def branchMatch = (branch =~ /$stageFilter/)
+		def lVersion = sh(
+			script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
+			returnStdout: true
+		).trim()
+		def branchMatch = (branch =~ stageFilter)
+		def lStage
 		if (branchMatch) {
-			stage = 'stage-';
-			version = branchMatch[0][1]
+			lStage = 'stage-';
+			lVersion = branchMatch[0][1]
 		} else {
-			stage = ''
-			version = sh(
-				script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
-				returnStdout: true
-			).trim()
+			lStage = ''
 		}
+		branchMatch = null
+		stage = lStage
+		version = lVersion
 		echo "name=${name}"
 		echo "branch=${branch}"
 		echo "version=${version}"
 		echo "release=${release}"
-		branchMatch = null
 	}
 	
 	stage('Prepare Build') {
