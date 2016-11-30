@@ -25,7 +25,6 @@ node('centos7') {
 	
 	stage('Checkout Repo') {
 		checkout scm
-		echo env.GIT_COMMIT
 	}
 		
 	stage('Set Build Variables') {
