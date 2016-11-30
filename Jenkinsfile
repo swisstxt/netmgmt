@@ -46,33 +46,37 @@ node('centos7') {
 			script: "git rev-parse --short HEAD",
 			returnStdout: true
 		).trim()
-		/*def lBranch = sh(
+		branch = sh(
 			script: "git rev-parse --abbrev-ref HEAD",
 			returnStdout: true
-		).trim()*/
-
-		release = "${release}.${rev}"
-		env.GOPATH = sourcesDir
-		env.PATH = "${sourcesDir}/bin:${env.PATH}"
-		// can be '' in case of a tag build
-		branch = env.BUILD_BRANCH
+		).trim()
 		
+		// necessary due to sandbox limitations on closures
 		def lStage
 		def lVersion
-		def branchMatch = (branch =~ stageFilter)
-		if (branchMatch) {
-			lStage = 'stage-';
-			lVersion = branchMatch[0][1]
-		} else {
+		
+		// the current branch is just 'HEAD' if no explicit branch was checked out
+		if (branch == 'HEAD') {
 			lStage = ''
 			lVersion = sh(
 				script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
 				returnStdout: true
 			).trim()
+		} else {
+			def branchMatch = (branch =~ stageFilter)
+			if (branchMatch) {
+				lStage = 'stage-';
+				lVersion = branchMatch[0][1]
+			} else {
+				error "Cannot determine version to build reliably. Exiting."
+			}
 		}
-		branchMatch = null
+
 		stage = lStage
 		version = lVersion
+		release = "${release}.${rev}"
+		env.GOPATH = sourcesDir
+		env.PATH = "${sourcesDir}/bin:${env.PATH}"
 		
 		echo "name=${name}"
 		echo "branch=${branch}"
