@@ -21,7 +21,7 @@ node('centos7') {
 	def osRelease = ''
 	def rev = ''
 	// declaring this explicitly does not work thanks to the idiotic Jenkins sandbox
-	//def stage = ''
+	//def stage = false
 	
 	stage('Checkout Repo') {
 		checkout scm
@@ -44,16 +44,23 @@ node('centos7') {
 			script: "git rev-parse --short HEAD",
 			returnStdout: true
 		).trim()
-		release = "${release}.${rev}"
-		env.GOPATH = sourcesDir
-		env.PATH = "${sourcesDir}/bin:${env.PATH}"
-		branch = env.BRANCH_NAME
 		def lVersion = sh(
 			script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
 			returnStdout: true
 		).trim()
-		def branchMatch = (branch =~ stageFilter)
+		/*def lBranch = sh(
+			script: "git rev-parse --abbrev-ref HEAD",
+			returnStdout: true
+		).trim()*/
+
+		release = "${release}.${rev}"
+		env.GOPATH = sourcesDir
+		env.PATH = "${sourcesDir}/bin:${env.PATH}"
+		// can be '' in case of a tag build
+		branch = env.BUILD_BRANCH
+		
 		def lStage
+		def branchMatch = (branch =~ stageFilter)
 		if (branchMatch) {
 			lStage = 'stage-';
 			lVersion = branchMatch[0][1]
@@ -63,6 +70,7 @@ node('centos7') {
 		branchMatch = null
 		stage = lStage
 		version = lVersion
+		
 		echo "name=${name}"
 		echo "branch=${branch}"
 		echo "version=${version}"
