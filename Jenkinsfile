@@ -48,7 +48,7 @@ node('centos7') {
 		env.GOPATH = sourcesDir
 		env.PATH = "${sourcesDir}/bin:${env.PATH}"
 		branch = env.BRANCH_NAME
-		def branchMatch = (branch =~ stageFilter)
+		def branchMatch = (branch =~ /$stageFilter/)
 		if (branchMatch) {
 			stage = 'stage-';
 			version = branchMatch[0][1]
