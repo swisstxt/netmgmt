@@ -25,6 +25,8 @@ node('centos7') {
 	
 	stage('Checkout Repo') {
 		checkout scm
+		echo env.BUILD_BRANCH
+		echo env.BRANCH_NAME
 	}
 		
 	stage('Set Build Variables') {
@@ -44,10 +46,6 @@ node('centos7') {
 			script: "git rev-parse --short HEAD",
 			returnStdout: true
 		).trim()
-		def lVersion = sh(
-			script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
-			returnStdout: true
-		).trim()
 		/*def lBranch = sh(
 			script: "git rev-parse --abbrev-ref HEAD",
 			returnStdout: true
@@ -60,12 +58,17 @@ node('centos7') {
 		branch = env.BUILD_BRANCH
 		
 		def lStage
+		def lVersion
 		def branchMatch = (branch =~ stageFilter)
 		if (branchMatch) {
 			lStage = 'stage-';
 			lVersion = branchMatch[0][1]
 		} else {
 			lStage = ''
+			lVersion = sh(
+				script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
+				returnStdout: true
+			).trim()
 		}
 		branchMatch = null
 		stage = lStage
