@@ -1,7 +1,7 @@
 node('centos7') {
     def name = "netmgmt"
     def orgName = "github.com/swisstxt"
-    def stageFilter = /(?:release|hotfix)-(?<version>[0-9]+(?:\.[0-9]+))*/
+    def stageFilter = /(?:release|hotfix)-([0-9]+(?:\.[0-9]+))*/
     
     def workspaceDir = env.WORKSPACE
     def specsDir = "${workspaceDir}/SPECS"
@@ -20,7 +20,8 @@ node('centos7') {
     def arch = ''
     def osRelease = ''
     def rev = ''
-    def stage = false
+    // declaring this explicitly does not work thanks to the idiotic Jenkins sandbox
+    //def stage = false
     
     stage('Checkout Repo') {
         checkout scm
@@ -39,10 +40,6 @@ node('centos7') {
             script: "/opt/buildhelper/buildhelper getosrelease || true",
             returnStdout: true
         ).trim()
-        version = sh(
-            script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
-            returnStdout: true
-        ).trim()
         rev = sh(
             script: "git rev-parse --short HEAD",
             returnStdout: true
@@ -51,10 +48,16 @@ node('centos7') {
         env.GOPATH = sourcesDir
         env.PATH = "${sourcesDir}/bin:${env.PATH}"
         branch = env.BRANCH_NAME
-        branchMatch = (branch =~ stageFilter)
-        if (branchMatch.matches()) {
+        def branchMatch = (branch =~ stageFilter)
+        if (branchMatch) {
             stage = true;
-            version = branchMatch.group("version")
+            version = branchMatch[0][1]
+        } else {
+            stage = false
+            version = sh(
+                script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
+                 returnStdout: true
+            ).trim()
         }
         echo "name=${name}"
         echo "branch=${branch}"
