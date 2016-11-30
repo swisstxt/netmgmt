@@ -1,7 +1,7 @@
 node('centos7') {
     def name = "netmgmt"
     def orgName = "github.com/swisstxt"
-    def stageFilter = ~/(?:release|hotfix)-(?<version>[0-9]+(?:\.[0-9]+))*/
+    def stageFilter = /(?:release|hotfix)-(?<version>[0-9]+(?:\.[0-9]+))*/
     
     def workspaceDir = env.WORKSPACE
     def specsDir = "${workspaceDir}/SPECS"
