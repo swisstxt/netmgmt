@@ -56,9 +56,10 @@ node('centos7') {
             stage = false
             version = sh(
                 script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
-                 returnStdout: true
+                returnStdout: true
             ).trim()
         }
+        branchMatch = null
         echo "name=${name}"
         echo "branch=${branch}"
         echo "version=${version}"
