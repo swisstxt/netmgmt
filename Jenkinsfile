@@ -21,7 +21,7 @@ node('centos7') {
 	def osRelease = ''
 	def rev = ''
 	// declaring this explicitly does not work thanks to the idiotic Jenkins sandbox
-	def stage = ''
+	//def stage = ''
 	
 	stage('Checkout Repo') {
 		checkout scm
