@@ -147,7 +147,7 @@ node('centos7') {
 	}
 	
 	stage('Deploy RPM') {
-		if (stage != '') {
+		if (isStaging) {
 			build job: 'deploy.install.genericstxt', parameters: [
 				string(name: 'INVENTORY_HOST', value: 'pcache'),
 				string(name: 'INVENTORY_NAME', value: 'hosts/integration'),
