@@ -20,8 +20,8 @@ node('centos7') {
 	def arch = ''
 	def osRelease = ''
 	def rev = ''
-	// declaring this explicitly does not work thanks to the idiotic Jenkins sandbox
-	//def stage = false
+	def stageSuffix = ''
+	def isStaging = false
 	
 	stage('Checkout Repo') {
 		checkout scm
@@ -52,28 +52,32 @@ node('centos7') {
 		).trim()
 		
 		// necessary due to sandbox limitations on closures
-		def lStage
+		def lStageSuffix
 		def lVersion
+		def lIsStaging
 		
 		// the current branch is just 'HEAD' if no explicit branch was checked out
 		if (branch == 'HEAD') {
-			lStage = ''
+			lStageSuffix = ''
 			lVersion = sh(
 				script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
 				returnStdout: true
 			).trim()
+			lIsStaging = false
 		} else {
 			def branchMatch = (branch =~ stageFilter)
 			if (branchMatch) {
-				lStage = '-stage';
+				lStageSuffix = '-stage';
 				lVersion = branchMatch[0][1]
+				lIsStaging = true
 			} else {
 				error "Cannot determine version to build reliably. Exiting."
 			}
 		}
 		
-		name = "${name}${stage}"
-		stage = lStage
+		stageSuffix = lStageSuffix
+		isStaging = lIsStaging
+		name = "${name}${stageSuffix}"
 		version = lVersion
 		release = "${release}.${rev}"
 		env.GOPATH = sourcesDir
