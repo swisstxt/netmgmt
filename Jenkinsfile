@@ -1,8 +1,16 @@
 node('centos7') {
+	// In most cases, you only need to change the sections marked as "ADAPT"
+	
+	// ADAPT
+	// Name of the project and package
 	def name = 'netmgmt'
+	// Qualified organization name (for Go projects)
 	def orgName = 'github.com/swisstxt'
+	// Regex for identifying stage branch names
 	def stageFilter = /(?:release|hotfix)-([0-9]+(?:\.[0-9]+))*/
+	// Suffix for staging packages
 	def stageSuffix = '-stage'
+	// END ADAPT
 
 	def workspaceDir = env.WORKSPACE
 	def specsDir = "${workspaceDir}/SPECS"
@@ -89,11 +97,14 @@ node('centos7') {
 	}
 	
 	stage('Prepare Build') {
+		// Set up Go-friendly source tree
 		sh "mkdir -p ${projectOrgDir}"
+		// and link source code there
 		sh "ln -sf ${workspaceDir} ${projectSourceDir}"
 	}
 	
 	stage('Clean Before Build') {
+		// Remove built files directories
 		for (path in [rpmbuildDir, "${sourcesDir}/pkg", "${sourcesDir}/lib"]) {
 			sh "rm -rf ${path}"
 		}
@@ -104,10 +115,13 @@ node('centos7') {
 	}
 	
 	stage('Get Dependencies') {
+		// Fetch godep tool
 		sh "go get github.com/tools/godep"
 	}
 	
 	stage('Compile Source') {
+		// ADAPT
+		// Fetch dependencies and build source using godep
 		dir(projectSourceDir) {
 			sh """
 				cd ${projectSourceDir}
@@ -116,12 +130,16 @@ node('centos7') {
 				godep go install
 			"""
 		}
+		// Copy the resulting binary
 		sh "cp ${sourcesDir}/bin/netmgmt ${sourcesDir}/netmgmt.bin"
+		// END ADAPT
 	}
 	
 	stage('Build RPM') {
+		// Copy the results into the RPM build environment
 		sh "cp -r ${specsDir}/* ${rpmbuildDir}/SPECS/ || true"
 		sh "cp -r ${sourcesDir}/* ${rpmbuildDir}/SOURCES/ || true"
+		// And build the RPM
 		sh """
 			rpmbuild -ba ${spec} \
 			--define "ver ${version}" \
@@ -137,25 +155,27 @@ node('centos7') {
 	}
 	
 	stage('Archive RPM') {
+		// Send the results to Jenkins
 		archiveArtifacts "${relRpmbuildDir}/*.rpm"
 		archiveArtifacts "${relRpmbuildDir}/*/*.rpm"
 	}
 	
 	stage('Push RPM') {
+		// Send the RPM to the package server
+		// TODO Change to sh "/opt..."
 		echo "Would execute: /opt/buildhelper/buildhelper pushrpm yum-01.stxt.media.int:8080/swisstxt-centos"
 	}
 	
 	stage('Deploy RPM') {
+		// ADAPT
+		// To change these to manual, just comment out the respective build job line
 		if (isStaging) {
-			build job: 'deploy.install.genericstxt', parameters: [
-				string(name: 'INVENTORY_HOST', value: 'pcache'),
-				string(name: 'INVENTORY_NAME', value: 'hosts/integration'),
-				string(name: 'PLAY_TYPE', value: 'task'),
-				string(name: 'PLAY_MODULE', value: 'shell'),
-				text(name: 'PLAY_ARGUMENTS', value: 'echo "Executing: yum clean metadata && yum update netmgmt"'),
-			]
+			// Call the deploy job for staging
+			build job: 'deploy.install.netmgmt', parameters: [ string(name: 'DEPLOY_ENVIRONMENT', value: 'stage') ]
 		} else {
-			echo "Release builds are not auto-deployed."
+			// Call the deploy job for production
+			build job: 'deploy.install.netmgmt', parameters: [ string(name: 'DEPLOY_ENVIRONMENT', value: 'production') ]
 		}
+		// END ADAPT
 	}
 }
