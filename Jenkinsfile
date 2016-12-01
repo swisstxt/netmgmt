@@ -1,8 +1,9 @@
 node('centos7') {
-	def name = "netmgmt"
-	def orgName = "github.com/swisstxt"
+	def name = 'netmgmt'
+	def orgName = 'github.com/swisstxt'
 	def stageFilter = /(?:release|hotfix)-([0-9]+(?:\.[0-9]+))*/
-	
+	def stageSuffix = '-stage'
+
 	def workspaceDir = env.WORKSPACE
 	def specsDir = "${workspaceDir}/SPECS"
 	def sourcesDir = "${workspaceDir}/SOURCES"
@@ -13,15 +14,16 @@ node('centos7') {
 	def relRpmbuildDir = "rpmbuild"
 	def rpmbuildDir = "${workspaceDir}/${relRpmbuildDir}"
 	
+	def buildNumber = env.BUILD_NUMBER
 	def branch = ''
 	def version = ''
-	def release = env.BUILD_NUMBER
+	def release = ''
 	def spec = ''
 	def arch = ''
 	def osRelease = ''
 	def rev = ''
 	def isStaging = false
-	def stageSuffix = ''
+	def pkgName = name
 	
 	stage('Checkout Repo') {
 		checkout scm
@@ -44,8 +46,9 @@ node('centos7') {
 			script: "git rev-parse --short HEAD",
 			returnStdout: true
 		).trim()
-		// should be GIT_BRANCH, but does not work due to #JENKINS-35230 and #SECURITY-170
-		// needs "Check out to local branch: **" in Jenkins
+		// Should be GIT_BRANCH, but does not work due to #JENKINS-35230 and #SECURITY-170
+		// Needs "Check out to local branch: **" in Jenkins,
+		// but do not set for tag builds.
 		branch = sh(
 			script: "git rev-parse --abbrev-ref HEAD",
 			returnStdout: true
@@ -53,29 +56,33 @@ node('centos7') {
 		
 		// the current branch is just 'HEAD' if no explicit branch was checked out
 		if (branch == 'HEAD') {
-			stageSuffix = ''
-			version = sh(
-				script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
-				returnStdout: true
-			).trim()
 			isStaging = false
 		} else {
 			def branchMatch = (branch =~ stageFilter)
 			if (branchMatch) {
-				stageSuffix = '-stage';
-				version = branchMatch[0][1]
 				isStaging = true
+				version = branchMatch[0][1]
 			} else {
-				error "Cannot determine version to build reliably. Exiting."
+				isStaging = false
 			}
 		}
+		if (isStaging) {
+			pkgName = "${name}${stageSuffix}"
+			release = "${buildNumber}.${rev}"
+		} else {
+			pkgName = "${name}"
+			release = "${buildNumber}"
+			version = sh(
+				script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
+				returnStdout: true
+			).trim()
+			// TODO remove the tag prefix (i.e. 'v')
+		}
 		
-		name = "${name}${stageSuffix}"
-		release = "${release}.${rev}"
 		env.GOPATH = sourcesDir
 		env.PATH = "${sourcesDir}/bin:${env.PATH}"
 		
-		echo "name=${name}"
+		echo "pkgName=${pkgName}"
 		echo "branch=${branch}"
 		echo "version=${version}"
 		echo "release=${release}"
@@ -119,7 +126,7 @@ node('centos7') {
 			rpmbuild -ba ${spec} \
 			--define "ver ${version}" \
 			--define "rel ${release}" \
-			--define "name ${name}" \
+			--define "name ${pkgName}" \
 			--define "os_rel ${osRelease}" \
 			--define "arch ${arch}" \
 			--define "_topdir ${rpmbuildDir}" \
