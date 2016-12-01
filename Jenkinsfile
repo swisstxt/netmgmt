@@ -20,7 +20,6 @@ node('centos7') {
 	def arch = ''
 	def osRelease = ''
 	def rev = ''
-	def stageSuffix = ''
 	def isStaging = false
 	
 	stage('Checkout Repo') {
@@ -52,31 +51,29 @@ node('centos7') {
 		).trim()
 		
 		// necessary due to sandbox limitations on closures
-		def lStageSuffix
 		def lVersion
-		def lIsStaging
+		
+		def stageSuffix
 		
 		// the current branch is just 'HEAD' if no explicit branch was checked out
 		if (branch == 'HEAD') {
-			lStageSuffix = ''
+			stageSuffix = ''
 			lVersion = sh(
 				script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
 				returnStdout: true
 			).trim()
-			lIsStaging = false
+			isStaging = false
 		} else {
 			def branchMatch = (branch =~ stageFilter)
 			if (branchMatch) {
-				lStageSuffix = '-stage';
+				stageSuffix = '-stage';
 				lVersion = branchMatch[0][1]
-				lIsStaging = true
+				isStaging = true
 			} else {
 				error "Cannot determine version to build reliably. Exiting."
 			}
 		}
 		
-		stageSuffix = lStageSuffix
-		isStaging = lIsStaging
 		name = "${name}${stageSuffix}"
 		version = lVersion
 		release = "${release}.${rev}"
