@@ -21,6 +21,7 @@ node('centos7') {
 	def osRelease = ''
 	def rev = ''
 	def isStaging = false
+	def stageSuffix = ''
 	
 	stage('Checkout Repo') {
 		checkout scm
@@ -44,21 +45,16 @@ node('centos7') {
 			returnStdout: true
 		).trim()
 		// should be GIT_BRANCH, but does not work due to #JENKINS-35230 and #SECURITY-170
-		// needs "Check out to local branch: **"
+		// needs "Check out to local branch: **" in Jenkins
 		branch = sh(
 			script: "git rev-parse --abbrev-ref HEAD",
 			returnStdout: true
 		).trim()
 		
-		// necessary due to sandbox limitations on closures
-		def lVersion
-		
-		def stageSuffix
-		
 		// the current branch is just 'HEAD' if no explicit branch was checked out
 		if (branch == 'HEAD') {
 			stageSuffix = ''
-			lVersion = sh(
+			version = sh(
 				script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
 				returnStdout: true
 			).trim()
@@ -67,7 +63,7 @@ node('centos7') {
 			def branchMatch = (branch =~ stageFilter)
 			if (branchMatch) {
 				stageSuffix = '-stage';
-				lVersion = branchMatch[0][1]
+				version = branchMatch[0][1]
 				isStaging = true
 			} else {
 				error "Cannot determine version to build reliably. Exiting."
@@ -75,7 +71,6 @@ node('centos7') {
 		}
 		
 		name = "${name}${stageSuffix}"
-		version = lVersion
 		release = "${release}.${rev}"
 		env.GOPATH = sourcesDir
 		env.PATH = "${sourcesDir}/bin:${env.PATH}"
