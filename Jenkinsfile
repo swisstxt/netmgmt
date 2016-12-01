@@ -25,9 +25,6 @@ node('centos7') {
 	
 	stage('Checkout Repo') {
 		checkout scm
-		def buildVars = new java.util.HashMap<String, String>()
-		scm.buildEnvVars(currentBuild.rawBuild, buildVars)
-		echo buildVars.toString()
 	}
 		
 	stage('Set Build Variables') {
@@ -47,6 +44,8 @@ node('centos7') {
 			script: "git rev-parse --short HEAD",
 			returnStdout: true
 		).trim()
+		// should be GIT_BRANCH, but does not work due to #JENKINS-35230 and #SECURITY-170
+		// needs "Check out to local branch: **"
 		branch = sh(
 			script: "git rev-parse --abbrev-ref HEAD",
 			returnStdout: true
