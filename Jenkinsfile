@@ -26,7 +26,7 @@ node('centos7') {
 	stage('Checkout Repo') {
 		checkout scm
 		def buildVars = new java.util.HashMap<String, String>()
-		scm.buildEnvVars(currentBuild, buildVars)
+		scm.buildEnvVars(currentBuild.rawBuild, buildVars)
 		echo buildVars.toString()
 	}
 		
