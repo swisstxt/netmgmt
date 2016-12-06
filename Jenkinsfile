@@ -1,7 +1,6 @@
 node('centos7') {
-	// In most cases, you only need to change the sections marked as "ADAPT"
+	// Project options
 	
-	// ADAPT
 	// Name of the project and package
 	def name = 'netmgmt'
 	// Qualified organization name (for Go projects)
@@ -10,8 +9,15 @@ node('centos7') {
 	def stageFilter = /(?:release|hotfix)-([0-9]+(?:\.[0-9]+))*/
 	// Suffix for staging packages
 	def stageSuffix = '-stage'
-	// END ADAPT
-
+	// Name of the installation task in Jenkins
+	def deployTask = 'deploy.install.netmgmt'
+	// Auto-deploy in staging
+	def doDeployStage = true
+	// Auto-deploy in production
+	def doDeployProduction = false
+	
+	// In most cases, you don't need to change anything below
+	
 	def workspaceDir = env.WORKSPACE
 	def specsDir = "${workspaceDir}/SPECS"
 	def sourcesDir = "${workspaceDir}/SOURCES"
@@ -21,6 +27,8 @@ node('centos7') {
 	def projectSourceDir = "${workspaceDir}/${relProjectSourceDir}"
 	def relRpmbuildDir = "rpmbuild"
 	def rpmbuildDir = "${workspaceDir}/${relRpmbuildDir}"
+	def execName = "${name}"
+	def binName = "${name}.bin"
 	
 	def buildNumber = env.BUILD_NUMBER
 	def branch = ''
@@ -56,7 +64,7 @@ node('centos7') {
 		).trim()
 		// Should be GIT_BRANCH, but does not work due to #JENKINS-35230 and #SECURITY-170
 		// Needs "Check out to local branch: **" in Jenkins,
-		// but do not set for tag builds.
+		// but do NOT set for tag builds.
 		branch = sh(
 			script: "git rev-parse --abbrev-ref HEAD",
 			returnStdout: true
@@ -108,7 +116,7 @@ node('centos7') {
 		for (path in [rpmbuildDir, "${sourcesDir}/pkg", "${sourcesDir}/lib"]) {
 			sh "rm -rf ${path}"
 		}
-		sh "rm -f ${sourcesDir}/netmgmt.bin"
+		sh "rm -f ${sourcesDir}/${binName}"
 		for (path in ["${rpmbuildDir}/SPECS", "${rpmbuildDir}/SOURCES", specsDir, "${sourcesDir}/pkg", "${sourcesDir}/lib"]) {
 			sh "mkdir -p ${path}"
 		}
@@ -120,7 +128,6 @@ node('centos7') {
 	}
 	
 	stage('Compile Source') {
-		// ADAPT
 		// Fetch dependencies and build source using godep
 		dir(projectSourceDir) {
 			sh """
@@ -131,8 +138,7 @@ node('centos7') {
 			"""
 		}
 		// Copy the resulting binary
-		sh "cp ${sourcesDir}/bin/netmgmt ${sourcesDir}/netmgmt.bin"
-		// END ADAPT
+		sh "cp ${sourcesDir}/bin/${execName} ${sourcesDir}/${binName}"
 	}
 	
 	stage('Build RPM') {
@@ -161,21 +167,21 @@ node('centos7') {
 	}
 	
 	stage('Push RPM') {
-		// Send the RPM to the package server
-		// TODO Change to sh "/opt..."
-		echo "Would execute: /opt/buildhelper/buildhelper pushrpm yum-01.stxt.media.int:8080/swisstxt-centos"
+		// Kick off the RPM push task
+		build job: 'deploy.rpm.push', parameters: [ string(name: 'SRC_WORKSPACE', value: workspaceDir) ]
 	}
 	
 	stage('Deploy RPM') {
-		// ADAPT
-		// To change these to manual, just comment out the respective build job line
 		if (isStaging) {
-			// Call the deploy job for staging
-			build job: 'deploy.install.netmgmt', parameters: [ string(name: 'DEPLOY_ENVIRONMENT', value: 'stage') ]
+			if (doDeployStage) {
+				// Call the deploy job for staging
+				build job: deployTask, parameters: [ string(name: 'DEPLOY_ENVIRONMENT', value: 'stage') ]
+			}
 		} else {
-			// Call the deploy job for production
-			build job: 'deploy.install.netmgmt', parameters: [ string(name: 'DEPLOY_ENVIRONMENT', value: 'production') ]
+			if (doDeployProduction) {
+				// Call the deploy job for production
+				build job: deployTask, parameters: [ string(name: 'DEPLOY_ENVIRONMENT', value: 'production') ]
+			}
 		}
-		// END ADAPT
 	}
 }
