@@ -30,6 +30,8 @@ node('centos7') {
 	def execName = "${name}"
 	def binName = "${name}.bin"
 	
+	def versionTagFilter = /^v?([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)/
+	
 	def buildNumber = env.BUILD_NUMBER
 	def branch = ''
 	def version = ''
@@ -88,11 +90,16 @@ node('centos7') {
 		} else {
 			pkgName = "${name}"
 			release = "${buildNumber}"
-			version = sh(
+			def gitVersion = sh(
 				script: "/opt/buildhelper/buildhelper getgittag ${workspaceDir}",
 				returnStdout: true
 			).trim()
-			// TODO remove the tag prefix (i.e. 'v')
+			def versionMatch = (gitVersion =~ versionTagFilter)
+			if (versionMatch) {
+				version = versionMatch[0][1]
+			} else {
+				error "Invalid version tag: ${gitVersion}"
+			}
 		}
 		
 		env.GOPATH = sourcesDir
