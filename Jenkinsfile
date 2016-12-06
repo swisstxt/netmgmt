@@ -30,7 +30,7 @@ node('centos7') {
 	def execName = "${name}"
 	def binName = "${name}.bin"
 	
-	def versionTagFilter = /^v?([0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)/
+	def versionTagFilter = /^v?([0-9]+(?:\.[0-9]+(?:\.[0-9]+))(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?)/
 	
 	def buildNumber = env.BUILD_NUMBER
 	def branch = ''
