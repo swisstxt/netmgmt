@@ -15,6 +15,7 @@ node('centos7') {
 	def doDeployStage = true
 	// Auto-deploy in production
 	def doDeployProduction = false
+	// test
 	
 	// In most cases, you don't need to change anything below
 	
