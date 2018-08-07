@@ -12,6 +12,7 @@ import (
 type ResultSet struct {
 	IP           net.IP `json:"ip"`
 	Name         string `json:"name"`
+	ReverseRec   net.IP `json:"reverse_rec"`
 	Desc         string `json:"desc"`
 	Pingable     bool   `json:"pingable"`
 	Lock         Lock   `json:"lock"`
@@ -59,8 +60,9 @@ func (c *check) isResolvable() {
 	r.OnRecv = func(resp []*Response) {
 		if len(resp) > 0 {
 			c.Lock()
-			c.results[resp[0].Addr.String()].Name = resp[0].A
+			c.results[resp[0].Addr.String()].Name = resp[0].PTR
 			c.results[resp[0].Addr.String()].Desc = resp[0].TXT
+			c.results[resp[0].Addr.String()].ReverseRec = resp[0].A
 			c.Unlock()
 		}
 	}

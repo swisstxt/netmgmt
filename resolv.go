@@ -62,7 +62,8 @@ func (r *Resolver) Run() error {
 }
 
 type Response struct {
-	A     string `json:"aptr"`
+	A     net.IP `json:"arec"`
+	PTR   string `json:"aptr"`
 	Addr  net.IP `json:"address"`
 	TXT   string `json:"txt"`
 	CNAME string `json:"cname"`
@@ -87,9 +88,19 @@ func resolvIP(ip net.IP) ([]*Response, error) {
 	}
 	for _, aptr := range aptrs {
 		txt := resolvTXT(aptr)
+		arec := net.ParseIP("127.0.0.1")
+		reverse, err := resolvName(aptr)
+		if err != nil {
+			return sets, err
+		}
+		if len(reverse) > 0 {
+			fr := *reverse[0]
+			arec = fr.Addr
+		}
 		sets = append(sets, &Response{
 			Addr: ip,
-			A:    aptr,
+			A:    arec,
+			PTR:  aptr,
 			TXT:  txt,
 		})
 	}
@@ -131,7 +142,7 @@ func resolvName(name string) ([]*Response, error) {
 		if isCNAME {
 			sets = append(sets, &Response{
 				Addr:  net.ParseIP(addr),
-				A:     aptr,
+				PTR:   aptr,
 				CNAME: name,
 				TXT:   txt,
 			})
@@ -139,7 +150,7 @@ func resolvName(name string) ([]*Response, error) {
 		} else {
 			sets = append(sets, &Response{
 				Addr: net.ParseIP(addr),
-				A:    name,
+				PTR:  name,
 				TXT:  txt,
 			})
 		}
