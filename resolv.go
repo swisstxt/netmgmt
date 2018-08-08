@@ -88,11 +88,8 @@ func resolvIP(ip net.IP) ([]*Response, error) {
 	}
 	for _, aptr := range aptrs {
 		txt := resolvTXT(aptr)
-		arec := net.ParseIP("127.0.0.1")
-		reverse, err := resolvName(aptr)
-		if err != nil {
-			return sets, err
-		}
+		var arec net.IP
+		reverse, _ := resolvName(aptr)
 		if len(reverse) > 0 {
 			fr := *reverse[0]
 			arec = fr.Addr
