@@ -484,7 +484,8 @@ for(var e=d(a),f=0;f<e.length;f++)b.call(c,a[e[f]],e[f]);return e}function f(a,b
         <thead>
             <tr>
                 <th class="mdl-data-table__cell--non-numeric">IP</th>
-                <th class="mdl-data-table__cell--non-numeric">DNS A Record</th>
+                <th class="mdl-data-table__cell--non-numeric">APTR</th>
+                <th class="mdl-data-table__cell--non-numeric">AREC</th>
                 <th class="mdl-data-table__cell--non-numeric">Description</th>
                 <th class="mdl-data-table__cell--non-numeric">Pingable</th>
                 <th class="mdl-data-table__cell--non-numeric">Reserved</th>
@@ -494,6 +495,7 @@ for(var e=d(a),f=0;f<e.length;f++)b.call(c,a[e[f]],e[f]);return e}function f(a,b
             <tr data-ng-repeat="node in network | filter:query | orderBy:ipOrder" ng-if="!node.free">
                 <td class="mdl-data-table__cell--non-numeric">{{node.ip}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{node.name}}</td>
+                <td class="mdl-data-table__cell--non-numeric">{{node.reverse_rec}}</td>
                 <td class="mdl-data-table__cell--non-numeric">{{node.desc | limitTo: 30}}</td>
                 <td class="mdl-data-table__cell--non-numeric">
                     <i class="material-icons" style="color: #01DFA5;" ng-if="node.pingable">check</i>
